@@ -1,475 +1,766 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Price Elasticity Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price Elasticity Analyzer Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --accent: #3b82f6;
-      --accent-soft: rgba(59, 130, 246, 0.15);
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --danger: #ef4444;
-      --success: #22c55e;
-    }
     * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    body {
       margin: 0;
       padding: 0;
-      background: radial-gradient(circle at top, #1f2937, #020617);
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    :root {
+      --bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.3);
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+    }
+
+    body {
+      background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
     }
-    .wrapper {
-      max-width: 1100px;
-      margin: 24px auto;
-      padding: 0 16px;
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
     }
+
     .header {
-      margin-bottom: 20px;
+      text-align: center;
+      margin-bottom: 30px;
+      animation: fadeIn 0.8s ease-out;
     }
-    .title {
-      font-size: 1.8rem;
-      font-weight: 700;
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .header .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .mode-toggle {
       display: flex;
-      align-items: center;
       gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
     }
-    .badge {
-      font-size: 0.75rem;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 3px 8px;
+
+    .mode-btn {
+      padding: 8px 20px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-    }
-    .subtitle {
-      color: var(--muted);
-      margin-top: 4px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s;
       font-size: 0.9rem;
     }
+
+    .mode-btn.active {
+      background: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      border-color: var(--accent);
+    }
+
     .layout {
       display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 16px;
+      grid-template-columns: 400px 1fr;
+      gap: 20px;
+      animation: slideUp 0.8s ease-out;
     }
-    @media (max-width: 900px) {
+
+    @media (max-width: 1024px) {
       .layout {
         grid-template-columns: 1fr;
       }
     }
+
     .card {
-      background: radial-gradient(circle at top left, #111827, #020617);
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
       border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      padding: 16px 18px;
-      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
+
     .card h2 {
-      font-size: 1rem;
-      margin: 0 0 10px;
-      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
+
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
+
     label {
       display: block;
-      margin-bottom: 4px;
-      font-size: 0.8rem;
-      color: var(--muted);
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
     }
+
     input[type="file"],
     input[type="number"],
     select {
       width: 100%;
-      padding: 7px 10px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
       border-radius: 8px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      background: #020617;
       color: var(--text);
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      transition: all 0.3s;
     }
-    input[type="file"] {
-      padding: 5px;
-    }
-    input:focus,
-    select:focus {
+
+    input:focus, select:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent-soft);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
-    button {
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn {
       width: 100%;
-      padding: 8px 12px;
+      padding: 12px;
       border-radius: 999px;
       border: none;
-      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      background: linear-gradient(90deg, var(--accent), #8b5cf6);
       color: white;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 1rem;
       cursor: pointer;
+      transition: all 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 4px;
     }
-    button:disabled {
-      opacity: 0.6;
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
     }
-    .hint {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 4px;
+
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
     }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--danger);
+      color: #fecaca;
+    }
+
+    .status.success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--success);
+      color: #a7f3d0;
+    }
+
     .metrics {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
-      margin-top: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
     }
-    .metric {
-      background: rgba(15, 23, 42, 0.9);
+
+    .metric-card {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
     }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
     .metric-label {
       font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 4px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+
     .metric-value {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
     }
-    .metric-tag {
-      font-size: 0.7rem;
-      margin-top: 2px;
-    }
-    .metric-tag.elastic {
-      color: var(--success);
-    }
-    .metric-tag.inelastic {
-      color: var(--danger);
-    }
-    .metric-tag.unitary {
-      color: var(--accent);
-    }
-    .status {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      background: rgba(15, 23, 42, 0.8);
-    }
-    .status.error {
-      border-color: var(--danger);
-      color: #fecaca;
-      background: rgba(127, 29, 29, 0.4);
-    }
-    .status.ok {
-      border-color: var(--success);
-      color: #bbf7d0;
-      background: rgba(22, 163, 74, 0.3);
-    }
-    .pill {
+
+    .metric-badge {
       display: inline-block;
-      padding: 2px 8px;
+      margin-top: 6px;
+      padding: 3px 10px;
       border-radius: 999px;
       font-size: 0.7rem;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: var(--muted);
-      margin-left: 4px;
+      font-weight: 600;
     }
+
+    .badge-elastic {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .badge-inelastic {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .badge-unitary {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent);
+    }
+
+    .ci-badge {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
     .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .advice-card {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .advice-card .icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .advice-card .title {
       font-size: 0.9rem;
       font-weight: 600;
-      margin: 16px 0 6px;
+      margin-bottom: 6px;
     }
+
+    .advice-card .text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .optimal-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+      border: 1px solid var(--success);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .optimal-price {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--success);
+      margin: 8px 0;
+    }
+
+    .optimal-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .chart-container {
+      height: 300px;
+      margin-top: 12px;
+      position: relative;
+    }
+
+    canvas {
+      max-height: 100%;
+    }
+
     .scenario-text {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.4;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-muted);
     }
-    .scenario-highlight {
+
+    .highlight {
       color: var(--accent);
       font-weight: 600;
     }
-    .chart {
-      width: 100%;
-      height: 260px;
-      border-radius: 12px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      background: rgba(15, 23, 42, 0.8);
-      padding: 8px;
-      margin-top: 4px;
+
+    .academic-mode {
+      display: none;
     }
-    canvas {
-      width: 100%;
-      height: 100%;
+
+    .academic-mode.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="header">
-    <div class="title">
-      Price Elasticity Analyzer
-      <span class="badge">Microeconomics · ML</span>
-    </div>
-    <div class="subtitle">
-      Upload sales data, estimate price elasticity, and simulate new pricing scenarios in one simple page.
-    </div>
-  </div>
+  <div class="container">
+    <div class="header">
+      <h1>Price Elasticity Analyzer Pro</h1>
+      <p class="subtitle">ML-powered pricing intelligence for smart business decisions</p>
 
-  <div class="layout">
-    <!-- LEFT: Controls -->
-    <div class="card">
-      <h2>Inputs <span class="pill">Step 1 → 2</span></h2>
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="shopkeeper">🛒 Shopkeeper Mode</button>
+        <button class="mode-btn" data-mode="academic">📚 Academic Mode</button>
+      </div>
+    </div>
 
-      <form id="analyze-form">
-        <div class="form-group">
-          <label for="file">Sales CSV <span style="color:#f97316;">*</span></label>
-          <input type="file" id="file" name="file" accept=".csv" required />
-          <div class="hint">
-            Required columns: <code>price</code>, <code>quantity</code>. Optional: <code>product</code>.
+    <div class="layout">
+      <!-- LEFT: Controls -->
+      <div class="card">
+        <h2>📊 Upload & Settings</h2>
+
+        <form id="analyze-form">
+          <div class="form-group">
+            <label>Sales Data (CSV) *</label>
+            <input type="file" id="file" name="file" accept=".csv" required>
+            <div class="hint">Required: price, quantity. Optional: product, date</div>
+          </div>
+
+          <div class="form-group">
+            <label>Product Filter</label>
+            <select id="product" name="product">
+              <option value="ALL">All products</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Test Price (for scenario)</label>
+            <input type="number" step="0.01" min="0" id="test_price" name="test_price" placeholder="e.g. 25">
+            <div class="hint">Simulate revenue at this price</div>
+          </div>
+
+          <div class="form-group">
+            <label>Cost per Unit (optional)</label>
+            <input type="number" step="0.01" min="0" id="cost_per_unit" name="cost_per_unit" placeholder="e.g. 15">
+            <div class="hint">For profit calculation</div>
+          </div>
+
+          <button type="submit" class="btn" id="submit-btn">
+            <span id="btn-text">Analyze Elasticity</span>
+            <span id="btn-spinner" class="spinner" style="display:none;"></span>
+          </button>
+        </form>
+
+        <div id="status" class="status"></div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="card">
+        <h2>📈 Analysis Results</h2>
+
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-label">Elasticity</div>
+            <div class="metric-value" id="elasticity-value">–</div>
+            <div id="elasticity-badge" class="metric-badge"></div>
+          </div>
+
+          <div class="metric-card academic-mode">
+            <div class="metric-label">95% Confidence</div>
+            <div class="metric-value" style="font-size:1.2rem;" id="ci-value">–</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Model Fit (R²)</div>
+            <div class="metric-value" id="r2-value">–</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Reliability</div>
+            <div class="metric-value" style="font-size:1.2rem;" id="reliability-value">–</div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="product">Product (optional)</label>
-          <select id="product" name="product">
-            <option value="ALL">All products</option>
-          </select>
-          <div class="hint">If your CSV has a 'product' column, you can filter later.</div>
+        <div class="section" id="advice-section" style="display:none;">
+          <div class="advice-card">
+            <div class="icon">💡</div>
+            <div class="title">Business Recommendation</div>
+            <div class="text" id="advice-text"></div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="test_price">Test price (for scenario)</label>
-          <input type="number" step="0.01" min="0" id="test_price" name="test_price" placeholder="e.g. 25" />
+        <div class="section academic-mode">
+          <div class="section-title">🎓 Academic Interpretation</div>
+          <p id="academic-text" style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;"></p>
         </div>
 
-        <div class="form-group">
-          <label for="cost_per_unit">Cost per unit (optional, for profit)</label>
-          <input type="number" step="0.01" min="0" id="cost_per_unit" name="cost_per_unit" placeholder="e.g. 15" />
-          <div class="hint">Used to estimate profit at the test price.</div>
+        <div class="section" id="optimal-section" style="display:none;">
+          <div class="section-title">🎯 Revenue Optimization</div>
+          <div class="optimal-card">
+            <div class="optimal-label">Optimal Price for Maximum Revenue</div>
+            <div class="optimal-price" id="optimal-price">₹–</div>
+            <div style="font-size:0.9rem; color:var(--text-muted);">
+              Expected Revenue: <span class="highlight" id="optimal-revenue">–</span>
+            </div>
+          </div>
         </div>
 
-        <button type="submit" id="submit-btn">
-          <span id="btn-text">Analyze Elasticity</span>
-          <span id="btn-spinner" style="display:none;">⏳</span>
-        </button>
-      </form>
-
-      <div id="status" class="status" style="display:none;"></div>
-    </div>
-
-    <!-- RIGHT: Results -->
-    <div class="card">
-      <h2>Results & Visuals</h2>
-
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-label">Elasticity (b in log‑log)</div>
-          <div id="metric-elasticity" class="metric-value">–</div>
-          <div id="metric-elasticity-tag" class="metric-tag"></div>
+        <div class="section" id="scenario-section" style="display:none;">
+          <div class="section-title">🔮 Scenario Simulation</div>
+          <div class="scenario-text" id="scenario-text"></div>
         </div>
-        <div class="metric">
-          <div class="metric-label">Model R²</div>
-          <div id="metric-r2" class="metric-value">–</div>
+
+        <div class="section" id="chart-section" style="display:none;">
+          <div class="section-title">📉 Demand Curve</div>
+          <div class="chart-container">
+            <canvas id="demand-chart"></canvas>
+          </div>
         </div>
-      </div>
 
-      <div id="elasticity-explanation" class="hint" style="margin-top:10px;">
-        Upload data to see classification and interpretation here.
-      </div>
-
-      <div class="section-title">Scenario summary</div>
-      <div id="scenario-summary" class="scenario-text">
-        Set a test price to estimate quantity, revenue, and profit.
-      </div>
-
-      <div class="section-title">Demand curve (model)</div>
-      <div class="chart">
-        <canvas id="demand-chart"></canvas>
+        <div class="section academic-mode" id="revenue-chart-section" style="display:none;">
+          <div class="section-title">💰 Revenue Curve</div>
+          <div class="chart-container">
+            <canvas id="revenue-chart"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Chart.js from CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const form = document.getElementById("analyze-form");
-  const statusDiv = document.getElementById("status");
-  const btn = document.getElementById("submit-btn");
-  const btnText = document.getElementById("btn-text");
-  const btnSpinner = document.getElementById("btn-spinner");
+  <script>
+    const form = document.getElementById('analyze-form');
+    const statusDiv = document.getElementById('status');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const modeButtons = document.querySelectorAll('.mode-btn');
 
-  const metricElasticity = document.getElementById("metric-elasticity");
-  const metricElasticityTag = document.getElementById("metric-elasticity-tag");
-  const metricR2 = document.getElementById("metric-r2");
-  const explanationDiv = document.getElementById("elasticity-explanation");
-  const scenarioDiv = document.getElementById("scenario-summary");
+    let demandChart = null;
+    let revenueChart = null;
+    let currentMode = 'shopkeeper';
 
-  let demandChart = null;
+    // Mode toggle
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
 
-  function setLoading(isLoading) {
-    if (isLoading) {
-      btn.disabled = true;
-      btnText.style.display = "none";
-      btnSpinner.style.display = "inline";
-      statusDiv.style.display = "block";
-      statusDiv.className = "status";
-      statusDiv.textContent = "Analyzing… please wait.";
-    } else {
-      btn.disabled = false;
-      btnText.style.display = "inline";
-      btnSpinner.style.display = "none";
-    }
-  }
-
-  function setStatus(message, isError = false) {
-    statusDiv.style.display = "block";
-    statusDiv.textContent = message;
-    statusDiv.className = "status " + (isError ? "error" : "ok");
-  }
-
-  function updateMetrics(data) {
-    metricElasticity.textContent = data.elasticity.toFixed(2);
-    metricR2.textContent = data.r2.toFixed(2);
-
-    const absE = Math.abs(data.elasticity);
-    let tagText = data.classification;
-    let tagClass = "metric-tag ";
-
-    if (data.classification === "Elastic") {
-      tagClass += "elastic";
-    } else if (data.classification === "Inelastic") {
-      tagClass += "inelastic";
-    } else {
-      tagClass += "unitary";
-    }
-
-    metricElasticityTag.textContent = tagText;
-    metricElasticityTag.className = tagClass;
-    explanationDiv.textContent = data.explanation;
-  }
-
-  function updateScenario(scenario) {
-    if (!scenario) {
-      scenarioDiv.innerHTML = "Set a test price to estimate quantity, revenue, and profit.";
-      return;
-    }
-    let html = "";
-    html += `At price <span class="scenario-highlight">${scenario.test_price.toFixed(2)}</span>, `;
-    html += `predicted quantity is about <span class="scenario-highlight">${scenario.predicted_quantity.toFixed(0)}</span> units. `;
-    html += `Revenue ≈ <span class="scenario-highlight">${scenario.predicted_revenue.toFixed(2)}</span>. `;
-    if (scenario.predicted_profit !== null) {
-      html += `Estimated profit ≈ <span class="scenario-highlight">${scenario.predicted_profit.toFixed(2)}</span>. `;
-    }
-    html += `<br/>Compared to average historical price ${scenario.baseline_price.toFixed(2)}, `;
-    const sign = scenario.revenue_change_pct >= 0 ? "+" : "";
-    html += `revenue change is <span class="scenario-highlight">${sign}${scenario.revenue_change_pct.toFixed(1)}%</span>.`;
-    scenarioDiv.innerHTML = html;
-  }
-
-  function renderChart(scatterData, curveData) {
-    const ctx = document.getElementById("demand-chart").getContext("2d");
-
-    if (demandChart) {
-      demandChart.destroy();
-    }
-
-    demandChart = new Chart(ctx, {
-      type: "scatter",
-      data: {
-        datasets: [
-          {
-            label: "Actual data",
-            data: scatterData.map(pt => ({ x: pt.price, y: pt.quantity })),
-            backgroundColor: "rgba(96, 165, 250, 0.9)",
-            pointRadius: 3
-          },
-          {
-            label: "Fitted demand curve",
-            data: curveData.map(pt => ({ x: pt.price, y: pt.quantity_pred })),
-            type: "line",
-            borderColor: "rgba(52, 211, 153, 1)",
-            borderWidth: 2,
-            tension: 0.15,
-            pointRadius: 0
+        document.querySelectorAll('.academic-mode').forEach(el => {
+          if (currentMode === 'academic') {
+            el.classList.add('show');
+          } else {
+            el.classList.remove('show');
           }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            labels: { color: "#e5e7eb", font: { size: 10 } }
-          }
-        },
-        scales: {
-          x: {
-            title: { display: true, text: "Price", color: "#9ca3af" },
-            ticks: { color: "#9ca3af" },
-            grid: { color: "rgba(31,41,55,0.8)" }
-          },
-          y: {
-            title: { display: true, text: "Quantity", color: "#9ca3af" },
-            ticks: { color: "#9ca3af" },
-            grid: { color: "rgba(31,41,55,0.8)" }
-          }
+        });
+      });
+    });
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.style.display = loading ? 'none' : 'inline';
+      btnSpinner.style.display = loading ? 'inline' : 'none';
+    }
+
+    function showStatus(message, isError = false) {
+      statusDiv.textContent = message;
+      statusDiv.className = 'status show ' + (isError ? 'error' : 'success');
+    }
+
+    function hideStatus() {
+      statusDiv.classList.remove('show');
+    }
+
+    function formatNumber(num, decimals = 2) {
+      return num.toFixed(decimals);
+    }
+
+    function formatCurrency(num) {
+      return '₹' + num.toFixed(2);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideStatus();
+      setLoading(true);
+
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Analysis failed');
         }
+
+        displayResults(data);
+        showStatus('✅ Analysis completed successfully!', false);
+
+      } catch (error) {
+        showStatus('❌ ' + error.message, true);
+      } finally {
+        setLoading(false);
       }
     });
-  }
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const fileInput = document.getElementById("file");
-    if (!fileInput.files.length) {
-      setStatus("Please select a CSV file.", true);
-      return;
+    function displayResults(data) {
+      // Metrics
+      document.getElementById('elasticity-value').textContent = formatNumber(data.elasticity, 2);
+      document.getElementById('ci-value').textContent = `[${formatNumber(data.ci[0], 2)}, ${formatNumber(data.ci[1], 2)}]`;
+      document.getElementById('r2-value').textContent = formatNumber(data.r2, 2);
+      document.getElementById('reliability-value').textContent = data.reliability;
+
+      // Elasticity badge
+      const badge = document.getElementById('elasticity-badge');
+      badge.textContent = data.classification;
+      badge.className = 'metric-badge badge-' + data.classification.toLowerCase();
+
+      // Advice
+      document.getElementById('advice-section').style.display = 'block';
+      document.getElementById('advice-text').textContent = data.shopkeeper_tip;
+
+      // Academic text
+      document.getElementById('academic-text').textContent = data.advice + 
+        ` The coefficient β = ${formatNumber(data.elasticity, 2)} with 95% CI [${formatNumber(data.ci[0], 2)}, ${formatNumber(data.ci[1], 2)}] ` +
+        `indicates ${data.classification.toLowerCase()} demand. Model R² = ${formatNumber(data.r2, 2)} (${data.n_observations} observations).`;
+
+      // Optimal price
+      document.getElementById('optimal-section').style.display = 'block';
+      document.getElementById('optimal-price').textContent = formatCurrency(data.optimal_price);
+      document.getElementById('optimal-revenue').textContent = formatCurrency(data.max_revenue);
+
+      // Scenario
+      if (data.scenario) {
+        document.getElementById('scenario-section').style.display = 'block';
+        const s = data.scenario;
+        const changeIcon = s.revenue_change_pct >= 0 ? '📈' : '📉';
+        const changeColor = s.revenue_change_pct >= 0 ? 'var(--success)' : 'var(--danger)';
+
+        let html = `At price <span class="highlight">${formatCurrency(s.test_price)}</span>, `;
+        html += `predicted quantity is <span class="highlight">${formatNumber(s.predicted_quantity, 0)}</span> units. `;
+        html += `<br>Revenue: <span class="highlight">${formatCurrency(s.predicted_revenue)}</span>`;
+        if (s.predicted_profit !== null) {
+          html += `, Profit: <span class="highlight">${formatCurrency(s.predicted_profit)}</span>`;
+        }
+        html += `<br>${changeIcon} Revenue change vs baseline: <span style="color:${changeColor}; font-weight:600;">${s.revenue_change_pct >= 0 ? '+' : ''}${formatNumber(s.revenue_change_pct, 1)}%</span>`;
+
+        document.getElementById('scenario-text').innerHTML = html;
+      }
+
+      // Charts
+      renderDemandChart(data);
+      renderRevenueChart(data);
     }
 
-    const formData = new FormData(form);
-    setLoading(true);
+    function renderDemandChart(data) {
+      document.getElementById('chart-section').style.display = 'block';
+      const ctx = document.getElementById('demand-chart').getContext('2d');
 
-    fetch("/analyze", {
-      method: "POST",
-      body: formData
-    })
-      .then(res => res.json().then(body => ({ status: res.status, body })))
-      .then(result => {
-        setLoading(false);
-        if (result.status !== 200) {
-          setStatus(result.body.error || "Unknown error.", true);
-          return;
+      if (demandChart) demandChart.destroy();
+
+      demandChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Actual Data',
+              data: data.scatter_data.map(d => ({x: d.price, y: d.quantity})),
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              pointRadius: 5,
+              pointHoverRadius: 7
+            },
+            {
+              label: 'Fitted Demand',
+              data: data.curve_data.map(d => ({x: d.price, y: d.quantity})),
+              type: 'line',
+              borderColor: 'rgba(139, 92, 246, 1)',
+              borderWidth: 3,
+              tension: 0.4,
+              pointRadius: 0,
+              fill: false
+            },
+            {
+              label: 'Optimal Price',
+              data: [{x: data.optimal_price, y: data.optimal_quantity}],
+              backgroundColor: 'rgba(16, 185, 129, 1)',
+              pointRadius: 10,
+              pointStyle: 'star'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {color: '#e5e7eb', font: {size: 11}}
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              titleColor: '#e5e7eb',
+              bodyColor: '#e5e7eb'
+            }
+          },
+          scales: {
+            x: {
+              title: {display: true, text: 'Price (₹)', color: '#9ca3af'},
+              ticks: {color: '#9ca3af'},
+              grid: {color: 'rgba(255,255,255,0.05)'}
+            },
+            y: {
+              title: {display: true, text: 'Quantity', color: '#9ca3af'},
+              ticks: {color: '#9ca3af'},
+              grid: {color: 'rgba(255,255,255,0.05)'}
+            }
+          }
         }
-        setStatus("Analysis completed successfully.", false);
-        updateMetrics(result.body);
-        updateScenario(result.body.scenario);
-        renderChart(result.body.scatter_data, result.body.curve_data);
-      })
-      .catch(err => {
-        setLoading(false);
-        setStatus("Request failed: " + err.message, true);
       });
-  });
-</script>
+    }
+
+    function renderRevenueChart(data) {
+      document.getElementById('revenue-chart-section').style.display = 'block';
+      const ctx = document.getElementById('revenue-chart').getContext('2d');
+
+      if (revenueChart) revenueChart.destroy();
+
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Revenue Curve',
+              data: data.revenue_data.map(d => ({x: d.price, y: d.revenue})),
+              borderColor: 'rgba(236, 72, 153, 1)',
+              backgroundColor: 'rgba(236, 72, 153, 0.1)',
+              borderWidth: 3,
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Max Revenue Point',
+              data: [{x: data.optimal_price, y: data.max_revenue}],
+              backgroundColor: 'rgba(16, 185, 129, 1)',
+              pointRadius: 12,
+              pointStyle: 'star'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {color: '#e5e7eb', font: {size: 11}}
+            }
+          },
+          scales: {
+            x: {
+              title: {display: true, text: 'Price (₹)', color: '#9ca3af'},
+              ticks: {color: '#9ca3af'},
+              grid: {color: 'rgba(255,255,255,0.05)'}
+            },
+            y: {
+              title: {display: true, text: 'Revenue (₹)', color: '#9ca3af'},
+              ticks: {color: '#9ca3af'},
+              grid: {color: 'rgba(255,255,255,0.05)'}
+            }
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
