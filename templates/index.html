@@ -1,766 +1,398 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Price Elasticity Analyzer Pro</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Intelligence Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0b0e14;
+            --bg-card: #151a23;
+            --bg-input: #1e2532;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --border: #30363d;
+            --accent: #3b82f6; 
+            --accent-glow: rgba(59, 130, 246, 0.2);
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #f85149;
+            --gradient-1: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(15,23,42,0) 100%);
+        }
 
-    :root {
-      --bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
-      --card-bg: rgba(255, 255, 255, 0.03);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.3);
-      --success: #10b981;
-      --danger: #ef4444;
-      --text: #e5e7eb;
-      --text-muted: #9ca3af;
-    }
+        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 14px; overflow-x: hidden; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 20px;
-    }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 320px 1fr; gap: 25px; }
+        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        h1, h2, h3 { margin: 0; }
+        .text-sm { font-size: 0.85rem; color: var(--text-muted); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        
+        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .brand { font-size: 1.3rem; font-weight: 700; background: linear-gradient(90deg, #fff, #8b949e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-      animation: fadeIn 0.8s ease-out;
-    }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .card:hover { border-color: var(--text-muted); }
 
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-    }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
+        input, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 6px; outline: none; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
-    .header .subtitle {
-      color: var(--text-muted);
-      font-size: 1rem;
-    }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .loader { width: 16px; height: 16px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: rot 1s linear infinite; display: none; }
+        @keyframes rot { to { transform: rotate(360deg); } }
 
-    .mode-toggle {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin: 20px 0;
-    }
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .metric-card { background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
+        .metric-val { font-size: 1.6rem; font-weight: 700; margin: 5px 0; }
 
-    .mode-btn {
-      padding: 8px 20px;
-      border-radius: 999px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 0.9rem;
-    }
+        .sim-box { background: var(--gradient-1); border: 1px solid var(--accent); margin-top: 20px; }
+        input[type=range] { width: 100%; margin: 15px 0; accent-color: var(--accent); height: 4px; }
+        .sim-val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+        .sim-highlight { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
 
-    .mode-btn.active {
-      background: var(--accent);
-      box-shadow: 0 0 20px var(--accent-glow);
-      border-color: var(--accent);
-    }
+        .conclusion { margin-top: 25px; border-top: 1px solid var(--border); padding-top: 20px; }
+        
+        /* NEW TABLES CSS */
+        .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .summary-table th { text-align: left; border-bottom: 1px solid var(--border); padding: 8px; color: var(--text-muted); }
+        .summary-table td { border-bottom: 1px solid var(--border); padding: 8px; color: var(--text-main); }
+        .summary-row-highlight { background: rgba(59, 130, 246, 0.05); font-weight: 600; }
+        .section-header { font-size: 0.9rem; font-weight: 600; margin-top: 20px; margin-bottom: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+        .rec-text { line-height: 1.6; color: var(--text-main); font-size: 0.9rem; border-left: 3px solid var(--success); padding-left: 15px; margin-top: 10px; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 400px 1fr;
-      gap: 20px;
-      animation: slideUp 0.8s ease-out;
-    }
-
-    @media (max-width: 1024px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    }
-
-    .card h2 {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    input[type="file"],
-    input[type="number"],
-    select {
-      width: 100%;
-      padding: 10px 14px;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.9rem;
-      transition: all 0.3s;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(90deg, var(--accent), #8b5cf6);
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px var(--accent-glow);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .status {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      display: none;
-    }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.error {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid var(--danger);
-      color: #fecaca;
-    }
-
-    .status.success {
-      background: rgba(16, 185, 129, 0.2);
-      border: 1px solid var(--success);
-      color: #a7f3d0;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .metric-card {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-
-    .metric-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .metric-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .metric-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .metric-badge {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .badge-elastic {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--success);
-    }
-
-    .badge-inelastic {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--danger);
-    }
-
-    .badge-unitary {
-      background: rgba(59, 130, 246, 0.2);
-      color: var(--accent);
-    }
-
-    .ci-badge {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: 6px;
-    }
-
-    .section {
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .advice-card {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .advice-card .icon {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    .advice-card .title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .advice-card .text {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .optimal-card {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
-      border: 1px solid var(--success);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .optimal-price {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--success);
-      margin: 8px 0;
-    }
-
-    .optimal-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .chart-container {
-      height: 300px;
-      margin-top: 12px;
-      position: relative;
-    }
-
-    canvas {
-      max-height: 100%;
-    }
-
-    .scenario-text {
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text-muted);
-    }
-
-    .highlight {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .academic-mode {
-      display: none;
-    }
-
-    .academic-mode.show {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
+        .chart-container { height: 280px; position: relative; margin-top: 15px; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Price Elasticity Analyzer Pro</h1>
-      <p class="subtitle">ML-powered pricing intelligence for smart business decisions</p>
 
-      <div class="mode-toggle">
-        <button class="mode-btn active" data-mode="shopkeeper">🛒 Shopkeeper Mode</button>
-        <button class="mode-btn" data-mode="academic">📚 Academic Mode</button>
-      </div>
+<div class="container">
+    <nav class="nav">
+        <div class="brand">Pricing Intelligence Suite</div>
+        <div class="text-sm">Enterprise Edition</div>
+    </nav>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="text-sm">Price Elasticity</div>
+            <div class="metric-val" id="disp_elasticity">-</div>
+        </div>
+        <div class="metric-card">
+            <div class="text-sm">Pricing Power</div>
+            <div class="metric-val" id="disp_power">-</div>
+        </div>
+        <div class="metric-card">
+            <div class="text-sm" id="opt_label">Max Potential</div>
+            <div class="metric-val" style="color:var(--success)" id="disp_max">-</div>
+        </div>
+        <div class="metric-card">
+            <div class="text-sm">Optimal Price</div>
+            <div class="metric-val" id="disp_opt_price">-</div>
+        </div>
     </div>
 
-    <div class="layout">
-      <!-- LEFT: Controls -->
-      <div class="card">
-        <h2>📊 Upload & Settings</h2>
+    <div class="grid">
+        <div>
+            <div class="card">
+                <h3>Configuration</h3>
+                <div style="height:15px"></div>
+                
+                <form id="configForm">
+                    <div class="input-group">
+                        <label>Sales Data (CSV)</label>
+                        <input type="file" name="file" id="fileInput" accept=".csv" required>
+                    </div>
 
-        <form id="analyze-form">
-          <div class="form-group">
-            <label>Sales Data (CSV) *</label>
-            <input type="file" id="file" name="file" accept=".csv" required>
-            <div class="hint">Required: price, quantity. Optional: product, date</div>
-          </div>
+                    <div class="input-group">
+                        <label>Target Product</label>
+                        <select name="product" id="productSelect" disabled>
+                            <option value="ALL">All Products</option>
+                        </select>
+                    </div>
 
-          <div class="form-group">
-            <label>Product Filter</label>
-            <select id="product" name="product">
-              <option value="ALL">All products</option>
-            </select>
-          </div>
+                    <div class="input-group">
+                        <label>Unit Cost (Optional)</label>
+                        <input type="number" name="cost" id="costInput" placeholder="0.00" step="0.01">
+                        <div class="text-sm" style="margin-top:4px">Entering cost enables Profit Optimization</div>
+                    </div>
 
-          <div class="form-group">
-            <label>Test Price (for scenario)</label>
-            <input type="number" step="0.01" min="0" id="test_price" name="test_price" placeholder="e.g. 25">
-            <div class="hint">Simulate revenue at this price</div>
-          </div>
+                    <button type="submit" class="btn btn-primary">
+                        <span>Run Analysis</span>
+                        <div class="loader"></div>
+                    </button>
+                </form>
 
-          <div class="form-group">
-            <label>Cost per Unit (optional)</label>
-            <input type="number" step="0.01" min="0" id="cost_per_unit" name="cost_per_unit" placeholder="e.g. 15">
-            <div class="hint">For profit calculation</div>
-          </div>
+                <div class="card sim-box" id="simPanel" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>Simulator</h3>
+                        <span class="badge" style="background:var(--accent); color:white">LIVE</span>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display:flex; justify-content:space-between; font-weight:600;">
+                            <span>Price:</span>
+                            <span id="simPriceVal" style="color:var(--accent)">-</span>
+                        </div>
+                        <input type="range" id="priceSlider">
+                    </div>
 
-          <button type="submit" class="btn" id="submit-btn">
-            <span id="btn-text">Analyze Elasticity</span>
-            <span id="btn-spinner" class="spinner" style="display:none;"></span>
-          </button>
-        </form>
-
-        <div id="status" class="status"></div>
-      </div>
-
-      <!-- RIGHT: Results -->
-      <div class="card">
-        <h2>📈 Analysis Results</h2>
-
-        <div class="metrics">
-          <div class="metric-card">
-            <div class="metric-label">Elasticity</div>
-            <div class="metric-value" id="elasticity-value">–</div>
-            <div id="elasticity-badge" class="metric-badge"></div>
-          </div>
-
-          <div class="metric-card academic-mode">
-            <div class="metric-label">95% Confidence</div>
-            <div class="metric-value" style="font-size:1.2rem;" id="ci-value">–</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-label">Model Fit (R²)</div>
-            <div class="metric-value" id="r2-value">–</div>
-          </div>
-
-          <div class="metric-card">
-            <div class="metric-label">Reliability</div>
-            <div class="metric-value" style="font-size:1.2rem;" id="reliability-value">–</div>
-          </div>
-        </div>
-
-        <div class="section" id="advice-section" style="display:none;">
-          <div class="advice-card">
-            <div class="icon">💡</div>
-            <div class="title">Business Recommendation</div>
-            <div class="text" id="advice-text"></div>
-          </div>
-        </div>
-
-        <div class="section academic-mode">
-          <div class="section-title">🎓 Academic Interpretation</div>
-          <p id="academic-text" style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;"></p>
-        </div>
-
-        <div class="section" id="optimal-section" style="display:none;">
-          <div class="section-title">🎯 Revenue Optimization</div>
-          <div class="optimal-card">
-            <div class="optimal-label">Optimal Price for Maximum Revenue</div>
-            <div class="optimal-price" id="optimal-price">₹–</div>
-            <div style="font-size:0.9rem; color:var(--text-muted);">
-              Expected Revenue: <span class="highlight" id="optimal-revenue">–</span>
+                    <div class="sim-val-grid">
+                        <div>
+                            <div class="text-sm">Est. Volume</div>
+                            <div id="simQty" class="sim-highlight">-</div>
+                        </div>
+                        <div>
+                            <div class="text-sm" id="simMetricLabel">Est. Revenue</div>
+                            <div id="simMetric" class="sim-highlight">-</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <div id="volatilityBox" class="card" style="margin-top:20px; border-color:var(--danger); display:none;">
+                <div style="display:flex; gap:10px; align-items:center; color:var(--danger); font-weight:700;">
+                    <span>⚠️ High Volatility Detected</span>
+                </div>
+                <p class="text-sm" style="margin-top:10px">
+                    Elasticity is > 1.5. Small price changes will cause massive volume swings. Proceed with caution.
+                </p>
+            </div>
         </div>
 
-        <div class="section" id="scenario-section" style="display:none;">
-          <div class="section-title">🔮 Scenario Simulation</div>
-          <div class="scenario-text" id="scenario-text"></div>
-        </div>
+        <div>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Demand Curve</h3>
+                    <div class="text-sm">95% Confidence Band</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="demandChart"></canvas>
+                </div>
+            </div>
 
-        <div class="section" id="chart-section" style="display:none;">
-          <div class="section-title">📉 Demand Curve</div>
-          <div class="chart-container">
-            <canvas id="demand-chart"></canvas>
-          </div>
-        </div>
+            <div class="card" style="margin-top:20px">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 id="metricChartTitle">Revenue Optimization</h3>
+                    <div class="text-sm">Projected Performance</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="metricChart"></canvas>
+                </div>
+            </div>
 
-        <div class="section academic-mode" id="revenue-chart-section" style="display:none;">
-          <div class="section-title">💰 Revenue Curve</div>
-          <div class="chart-container">
-            <canvas id="revenue-chart"></canvas>
-          </div>
+            <div class="card conclusion" id="conclusionPanel" style="display:none;">
+                <h3>Executive Summary</h3>
+                <!-- Content injected dynamically -->
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    const form = document.getElementById('analyze-form');
-    const statusDiv = document.getElementById('status');
-    const submitBtn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnSpinner = document.getElementById('btn-spinner');
-    const modeButtons = document.querySelectorAll('.mode-btn');
+<script>
+let model = { intercept: 0, elasticity: 0, cost: 0 };
+let charts = { demand: null, metric: null };
 
-    let demandChart = null;
-    let revenueChart = null;
-    let currentMode = 'shopkeeper';
-
-    // Mode toggle
-    modeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        modeButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentMode = btn.dataset.mode;
-
-        document.querySelectorAll('.academic-mode').forEach(el => {
-          if (currentMode === 'academic') {
-            el.classList.add('show');
-          } else {
-            el.classList.remove('show');
-          }
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch('/scan_products', { method:'POST', body:formData });
+    const data = await res.json();
+    const select = document.getElementById('productSelect');
+    select.innerHTML = '<option value="ALL">All Products</option>';
+    if(data.products && data.products.length > 0) {
+        select.disabled = false;
+        data.products.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p; opt.innerText = p; select.appendChild(opt);
         });
-      });
-    });
-
-    function setLoading(loading) {
-      submitBtn.disabled = loading;
-      btnText.style.display = loading ? 'none' : 'inline';
-      btnSpinner.style.display = loading ? 'inline' : 'none';
     }
+});
 
-    function showStatus(message, isError = false) {
-      statusDiv.textContent = message;
-      statusDiv.className = 'status show ' + (isError ? 'error' : 'success');
+document.getElementById('configForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const loader = e.target.querySelector('.loader');
+    btn.disabled = true; loader.style.display = 'block';
+
+    try {
+        const formData = new FormData(e.target);
+        const res = await fetch('/analyze', { method:'POST', body:formData });
+        const data = await res.json();
+        if(data.error) throw new Error(data.error);
+        updateDashboard(data);
+    } catch(err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false; loader.style.display = 'none';
     }
+});
 
-    function hideStatus() {
-      statusDiv.classList.remove('show');
+function updateDashboard(data) {
+    model = { intercept: data.optimization.intercept, elasticity: data.optimization.elasticity, cost: data.optimization.cost };
+    const isProfit = model.cost > 0;
+    const currency = '₹';
+
+    animateValue('disp_elasticity', data.metrics.elasticity, '', 2);
+    animateValue('disp_power', data.metrics.pricing_power, '', 0);
+    animateValue('disp_opt_price', data.optimization.optimal_price, currency, 2);
+    animateValue('disp_max', data.optimization.max_val, currency, 0);
+    
+    document.getElementById('opt_label').innerText = isProfit ? "Max Potential Profit" : "Max Potential Revenue";
+    document.getElementById('metricChartTitle').innerText = isProfit ? "Profit Optimization" : "Revenue Optimization";
+    document.getElementById('simMetricLabel').innerText = isProfit ? "Est. Profit" : "Est. Revenue";
+
+    const volBox = document.getElementById('volatilityBox');
+    volBox.style.display = Math.abs(data.metrics.elasticity) > 1.5 ? 'block' : 'none';
+
+    const slider = document.getElementById('priceSlider');
+    slider.min = data.charts.prices[0];
+    slider.max = data.charts.prices[data.charts.prices.length - 1];
+    slider.step = (slider.max - slider.min) / 100;
+    slider.value = data.metrics.avg_price;
+    document.getElementById('simPanel').style.display = 'block';
+    updateSimulator(slider.value); 
+
+    const panel = document.getElementById('conclusionPanel');
+    panel.style.display = 'block';
+    const imp = data.impact_analysis;
+    const sens = data.sensitivity_analysis;
+    const mkt = data.market_position;
+    const scen = data.scenario_comparison;
+    const risk = data.risk_simulation;
+
+    let html = `
+        <div class="section-header">Revenue Opportunity</div>
+        <table class="summary-table">
+            <tr><td>Current Performance</td><td>${currency}${imp.current_value.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="summary-row-highlight"><td>Optimal Potential</td><td>${currency}${imp.optimal_value.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Upside Value</td><td style="color:var(--success)">+${currency}${imp.absolute_gain.toLocaleString(undefined,{maximumFractionDigits:0})} (+${imp.percent_gain.toFixed(1)}%)</td></tr>
+            ${isProfit ? `<tr><td>Target Margin</td><td>${imp.margin_percent.toFixed(1)}%</td></tr>` : ''}
+        </table>
+
+        <div class="section-header">Market Sensitivity</div>
+        <div class="text-sm" style="margin-bottom:10px">${sens.demand_impact_statement}</div>
+        <table class="summary-table">
+            <tr><td>Volatility Profile</td><td>${sens.volatility_level}</td></tr>
+            <tr><td>Confidence Score</td><td>${sens.confidence_level} (${(sens.confidence_score*100).toFixed(0)}%)</td></tr>
+            <tr><td>Strategic Position</td><td>${mkt.strategic_positioning}</td></tr>
+        </table>
+
+        <div class="section-header">Scenario Comparison</div>
+        <table class="summary-table">
+            <thead><tr><th>Scenario</th><th>Price</th><th>Est. Vol</th><th>${isProfit ? 'Profit' : 'Revenue'}</th></tr></thead>
+            <tbody>
+                <tr><td>Current</td><td>${currency}${scen.current.price.toFixed(2)}</td><td>${Math.round(scen.current.volume)}</td><td>${currency}${Math.round(scen.current.metric).toLocaleString()}</td></tr>
+                <tr class="summary-row-highlight"><td>Optimal</td><td>${currency}${scen.optimal.price.toFixed(2)}</td><td>${Math.round(scen.optimal.volume)}</td><td>${currency}${Math.round(scen.optimal.metric).toLocaleString()}</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-header">Risk Sensitivity (Stress Test)</div>
+        <div class="text-sm">
+            Impact of 10% price deviation:
+            <ul style="margin:5px 0 0 20px; padding:0;">
+                <li>+10% Price: <span style="color:${risk.plus_10_percent_impact > 0 ? 'var(--success)' : 'var(--danger)'}">${risk.plus_10_percent_impact > 0 ? '+' : ''}${risk.plus_10_percent_impact.toFixed(1)}%</span> impact</li>
+                <li>-10% Price: <span style="color:${risk.minus_10_percent_impact > 0 ? 'var(--success)' : 'var(--danger)'}">${risk.minus_10_percent_impact > 0 ? '+' : ''}${risk.minus_10_percent_impact.toFixed(1)}%</span> impact</li>
+            </ul>
+        </div>
+
+        <div class="section-header">Final Strategic Recommendation</div>
+        <div class="rec-text">${data.final_recommendation}</div>
+    `;
+
+    const contentContainer = document.createElement('div');
+    contentContainer.innerHTML = html;
+    const h3 = panel.querySelector('h3');
+    panel.innerHTML = '';
+    panel.appendChild(h3);
+    panel.appendChild(contentContainer);
+
+    renderCharts(data);
+}
+
+document.getElementById('priceSlider').addEventListener('input', (e) => updateSimulator(e.target.value));
+
+function updateSimulator(price) {
+    price = parseFloat(price);
+    const logQ = model.intercept + (model.elasticity * Math.log(price));
+    const q = Math.exp(logQ);
+    const metric = model.cost > 0 ? (price - model.cost) * q : price * q;
+
+    document.getElementById('simPriceVal').innerText = "₹" + price.toFixed(2);
+    document.getElementById('simQty').innerText = Math.round(q).toLocaleString();
+    document.getElementById('simMetric').innerText = "₹" + metric.toLocaleString(undefined, {maximumFractionDigits:0});
+
+    if(charts.demand && charts.metric) {
+        updateChartAnnotation(charts.demand, price, q);
+        updateChartAnnotation(charts.metric, price, metric);
     }
+}
 
-    function formatNumber(num, decimals = 2) {
-      return num.toFixed(decimals);
-    }
+function updateChartAnnotation(chart, x, y) {
+    chart.options.plugins.annotation.annotations.simLine = { type: 'line', xMin: x, xMax: x, borderColor: '#3b82f6', borderWidth: 2, borderDash: [4,4] };
+    chart.options.plugins.annotation.annotations.simPoint = { type: 'point', xValue: x, yValue: y, backgroundColor: '#3b82f6', radius: 6, borderColor: 'white', borderWidth: 2 };
+    chart.update('none');
+}
 
-    function formatCurrency(num) {
-      return '₹' + num.toFixed(2);
-    }
+function renderCharts(data) {
+    const commonOptions = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, annotation: { annotations: {} } },
+        scales: { x: { grid: {color:'#30363d'}, title: {display:true, text:'Price'} }, y: { grid: {color:'#30363d'} } }
+    };
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideStatus();
-      setLoading(true);
-
-      const formData = new FormData(form);
-
-      try {
-        const response = await fetch('/analyze', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Analysis failed');
-        }
-
-        displayResults(data);
-        showStatus('✅ Analysis completed successfully!', false);
-
-      } catch (error) {
-        showStatus('❌ ' + error.message, true);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    function displayResults(data) {
-      // Metrics
-      document.getElementById('elasticity-value').textContent = formatNumber(data.elasticity, 2);
-      document.getElementById('ci-value').textContent = `[${formatNumber(data.ci[0], 2)}, ${formatNumber(data.ci[1], 2)}]`;
-      document.getElementById('r2-value').textContent = formatNumber(data.r2, 2);
-      document.getElementById('reliability-value').textContent = data.reliability;
-
-      // Elasticity badge
-      const badge = document.getElementById('elasticity-badge');
-      badge.textContent = data.classification;
-      badge.className = 'metric-badge badge-' + data.classification.toLowerCase();
-
-      // Advice
-      document.getElementById('advice-section').style.display = 'block';
-      document.getElementById('advice-text').textContent = data.shopkeeper_tip;
-
-      // Academic text
-      document.getElementById('academic-text').textContent = data.advice + 
-        ` The coefficient β = ${formatNumber(data.elasticity, 2)} with 95% CI [${formatNumber(data.ci[0], 2)}, ${formatNumber(data.ci[1], 2)}] ` +
-        `indicates ${data.classification.toLowerCase()} demand. Model R² = ${formatNumber(data.r2, 2)} (${data.n_observations} observations).`;
-
-      // Optimal price
-      document.getElementById('optimal-section').style.display = 'block';
-      document.getElementById('optimal-price').textContent = formatCurrency(data.optimal_price);
-      document.getElementById('optimal-revenue').textContent = formatCurrency(data.max_revenue);
-
-      // Scenario
-      if (data.scenario) {
-        document.getElementById('scenario-section').style.display = 'block';
-        const s = data.scenario;
-        const changeIcon = s.revenue_change_pct >= 0 ? '📈' : '📉';
-        const changeColor = s.revenue_change_pct >= 0 ? 'var(--success)' : 'var(--danger)';
-
-        let html = `At price <span class="highlight">${formatCurrency(s.test_price)}</span>, `;
-        html += `predicted quantity is <span class="highlight">${formatNumber(s.predicted_quantity, 0)}</span> units. `;
-        html += `<br>Revenue: <span class="highlight">${formatCurrency(s.predicted_revenue)}</span>`;
-        if (s.predicted_profit !== null) {
-          html += `, Profit: <span class="highlight">${formatCurrency(s.predicted_profit)}</span>`;
-        }
-        html += `<br>${changeIcon} Revenue change vs baseline: <span style="color:${changeColor}; font-weight:600;">${s.revenue_change_pct >= 0 ? '+' : ''}${formatNumber(s.revenue_change_pct, 1)}%</span>`;
-
-        document.getElementById('scenario-text').innerHTML = html;
-      }
-
-      // Charts
-      renderDemandChart(data);
-      renderRevenueChart(data);
-    }
-
-    function renderDemandChart(data) {
-      document.getElementById('chart-section').style.display = 'block';
-      const ctx = document.getElementById('demand-chart').getContext('2d');
-
-      if (demandChart) demandChart.destroy();
-
-      demandChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-          datasets: [
-            {
-              label: 'Actual Data',
-              data: data.scatter_data.map(d => ({x: d.price, y: d.quantity})),
-              backgroundColor: 'rgba(59, 130, 246, 0.7)',
-              pointRadius: 5,
-              pointHoverRadius: 7
-            },
-            {
-              label: 'Fitted Demand',
-              data: data.curve_data.map(d => ({x: d.price, y: d.quantity})),
-              type: 'line',
-              borderColor: 'rgba(139, 92, 246, 1)',
-              borderWidth: 3,
-              tension: 0.4,
-              pointRadius: 0,
-              fill: false
-            },
-            {
-              label: 'Optimal Price',
-              data: [{x: data.optimal_price, y: data.optimal_quantity}],
-              backgroundColor: 'rgba(16, 185, 129, 1)',
-              pointRadius: 10,
-              pointStyle: 'star'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {color: '#e5e7eb', font: {size: 11}}
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
-              titleColor: '#e5e7eb',
-              bodyColor: '#e5e7eb'
-            }
-          },
-          scales: {
-            x: {
-              title: {display: true, text: 'Price (₹)', color: '#9ca3af'},
-              ticks: {color: '#9ca3af'},
-              grid: {color: 'rgba(255,255,255,0.05)'}
-            },
-            y: {
-              title: {display: true, text: 'Quantity', color: '#9ca3af'},
-              ticks: {color: '#9ca3af'},
-              grid: {color: 'rgba(255,255,255,0.05)'}
-            }
-          }
-        }
-      });
-    }
-
-    function renderRevenueChart(data) {
-      document.getElementById('revenue-chart-section').style.display = 'block';
-      const ctx = document.getElementById('revenue-chart').getContext('2d');
-
-      if (revenueChart) revenueChart.destroy();
-
-      revenueChart = new Chart(ctx, {
+    if(charts.demand) charts.demand.destroy();
+    charts.demand = new Chart(document.getElementById('demandChart'), {
         type: 'line',
         data: {
-          datasets: [
-            {
-              label: 'Revenue Curve',
-              data: data.revenue_data.map(d => ({x: d.price, y: d.revenue})),
-              borderColor: 'rgba(236, 72, 153, 1)',
-              backgroundColor: 'rgba(236, 72, 153, 0.1)',
-              borderWidth: 3,
-              tension: 0.4,
-              fill: true
-            },
-            {
-              label: 'Max Revenue Point',
-              data: [{x: data.optimal_price, y: data.max_revenue}],
-              backgroundColor: 'rgba(16, 185, 129, 1)',
-              pointRadius: 12,
-              pointStyle: 'star'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {color: '#e5e7eb', font: {size: 11}}
-            }
-          },
-          scales: {
-            x: {
-              title: {display: true, text: 'Price (₹)', color: '#9ca3af'},
-              ticks: {color: '#9ca3af'},
-              grid: {color: 'rgba(255,255,255,0.05)'}
-            },
-            y: {
-              title: {display: true, text: 'Revenue (₹)', color: '#9ca3af'},
-              ticks: {color: '#9ca3af'},
-              grid: {color: 'rgba(255,255,255,0.05)'}
-            }
-          }
-        }
-      });
+            labels: data.charts.prices.map(p => p.toFixed(2)),
+            datasets: [
+                { label: 'Actual', data: data.charts.scatter, type: 'scatter', backgroundColor: '#8b949e' },
+                { label: 'Trend', data: data.charts.demand, borderColor: '#fff', borderWidth: 2, pointRadius: 0 },
+                { label: 'CI Upper', data: data.charts.demand_upper, backgroundColor: 'rgba(59,130,246,0.1)', borderColor: 'transparent', fill: '+1', pointRadius:0 },
+                { label: 'CI Lower', data: data.charts.demand_lower, backgroundColor: 'transparent', borderColor: 'transparent', pointRadius:0 }
+            ]
+        }, options: commonOptions
+    });
+
+    if(charts.metric) charts.metric.destroy();
+    charts.metric = new Chart(document.getElementById('metricChart'), {
+        type: 'line',
+        data: {
+            labels: data.charts.prices.map(p => p.toFixed(2)),
+            datasets: [{
+                label: model.cost > 0 ? 'Profit' : 'Revenue',
+                data: data.charts.metric_curve,
+                borderColor: '#238636', backgroundColor: 'rgba(35, 134, 54, 0.2)',
+                fill: true, pointRadius: 0
+            }]
+        }, options: commonOptions
+    });
+}
+
+function animateValue(id, end, prefix="", decimals=0) {
+    const el = document.getElementById(id);
+    let start = 0; const duration = 1000; const startTime = performance.now();
+    function update(currentTime) {
+        const elapsed = currentTime - startTime; const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 4);
+        const currentVal = start + (end - start) * ease;
+        el.innerText = prefix + currentVal.toLocaleString(undefined, {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+        if (progress < 1) requestAnimationFrame(update);
     }
-  </script>
+    requestAnimationFrame(update);
+}
+</script>
 </body>
 </html>
