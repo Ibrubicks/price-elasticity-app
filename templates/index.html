@@ -1,398 +1,958 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing Intelligence Suite</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-body: #0b0e14;
-            --bg-card: #151a23;
-            --bg-input: #1e2532;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
-            --border: #30363d;
-            --accent: #3b82f6; 
-            --accent-glow: rgba(59, 130, 246, 0.2);
-            --success: #238636;
-            --warning: #d29922;
-            --danger: #f85149;
-            --gradient-1: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(15,23,42,0) 100%);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RevenueLens 2.0 — Autonomous Revenue Engine</title>
 
-        * { box-sizing: border-box; transition: all 0.2s ease-in-out; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 14px; overflow-x: hidden; }
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .grid { display: grid; grid-template-columns: 320px 1fr; gap: 25px; }
-        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
-        h1, h2, h3 { margin: 0; }
-        .text-sm { font-size: 0.85rem; color: var(--text-muted); }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
-        
-        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-        .brand { font-size: 1.3rem; font-weight: 700; background: linear-gradient(90deg, #fff, #8b949e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  <style>
+    :root{
+      --bg-body:#0b0e14;
+      --bg-card:#151a23;
+      --bg-input:#1e2532;
+      --text-main:#f0f6fc;
+      --text-muted:#8b949e;
+      --border:#30363d;
+      --accent:#7C3AED;
+      --accent-glow:rgba(124,58,237,0.40);
+      --success:#238636;
+      --warning:#d29922;
+      --danger:#f85149;
+      --gradient-1:linear-gradient(135deg, rgba(124,58,237,0.16) 0%, rgba(15,23,42,0.0) 100%);
+    }
 
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .card:hover { border-color: var(--text-muted); }
+    *{ box-sizing:border-box; transition:all .18s ease-out; }
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(124,58,237,0.22) 0%, #0b0e14 44%, #050509 100%);
+      color:var(--text-main);
+      font-size:14px;
+      overflow-x:hidden;
+    }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
-        input, select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 6px; outline: none; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+    .container{ max-width:1400px; margin:0 auto; padding:20px; }
 
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { filter: brightness(1.1); }
-        .loader { width: 16px; height: 16px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: rot 1s linear infinite; display: none; }
-        @keyframes rot { to { transform: rotate(360deg); } }
+    /* Premium header glow */
+    .nav{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:22px; padding-bottom:18px;
+      border-bottom:1px solid rgba(48,54,61,.85);
+      position:relative;
+    }
+    .nav:before{
+      content:"";
+      position:absolute; left:0; right:0; top:-18px; height:56px;
+      background:linear-gradient(90deg, rgba(124,58,237,0.0), rgba(124,58,237,0.25), rgba(124,58,237,0.0));
+      filter:blur(10px);
+      opacity:.65;
+      pointer-events:none;
+    }
 
-        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .metric-card { background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: relative; overflow: hidden; }
-        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
-        .metric-val { font-size: 1.6rem; font-weight: 700; margin: 5px 0; }
+    .brand{
+      font-size:1.4rem; font-weight:800; color:#fff;
+      letter-spacing:-0.03em; display:flex; gap:8px; align-items:baseline;
+    }
+    .brand span{ color:var(--accent); }
+    .text-sm{ font-size:.85rem; color:var(--text-muted); }
 
-        .sim-box { background: var(--gradient-1); border: 1px solid var(--accent); margin-top: 20px; }
-        input[type=range] { width: 100%; margin: 15px 0; accent-color: var(--accent); height: 4px; }
-        .sim-val-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-        .sim-highlight { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
+    .grid{ display:grid; grid-template-columns:320px 1fr; gap:25px; }
+    @media (max-width:1000px){ .grid{ grid-template-columns:1fr; } }
 
-        .conclusion { margin-top: 25px; border-top: 1px solid var(--border); padding-top: 20px; }
-        
-        /* NEW TABLES CSS */
-        .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        .summary-table th { text-align: left; border-bottom: 1px solid var(--border); padding: 8px; color: var(--text-muted); }
-        .summary-table td { border-bottom: 1px solid var(--border); padding: 8px; color: var(--text-main); }
-        .summary-row-highlight { background: rgba(59, 130, 246, 0.05); font-weight: 600; }
-        .section-header { font-size: 0.9rem; font-weight: 600; margin-top: 20px; margin-bottom: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
-        .rec-text { line-height: 1.6; color: var(--text-main); font-size: 0.9rem; border-left: 3px solid var(--success); padding-left: 15px; margin-top: 10px; }
+    .badge{
+      padding:4px 10px; border-radius:999px; font-size:.74rem;
+      font-weight:800; letter-spacing:.02em;
+      border:1px solid rgba(124,58,237,.35);
+      background:rgba(124,58,237,.10);
+      color:#fff;
+      display:inline-flex; align-items:center; gap:8px;
+    }
 
-        .chart-container { height: 280px; position: relative; margin-top: 15px; }
-    </style>
+    .card{
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 0 0 rgba(0,0,0,0);
+      position:relative; overflow:hidden;
+    }
+    .card:hover{
+      border-color:rgba(124,58,237,.65);
+      box-shadow:0 16px 35px rgba(0,0,0,.60), 0 0 24px rgba(124,58,237,.22);
+      transform:translateY(-2px);
+    }
+    .card:before{
+      content:"";
+      position:absolute; top:0; left:12px; right:12px; height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(124,58,237,0.0), rgba(124,58,237,0.85), rgba(124,58,237,0.0));
+      opacity:.9;
+    }
+
+    h1,h2,h3{ margin:0; }
+    h3{ font-size:1.02rem; font-weight:700; }
+
+    .input-group{ margin-bottom:15px; }
+    label{
+      display:block; margin-bottom:6px;
+      color:var(--text-muted);
+      font-size:.80rem; font-weight:600;
+      letter-spacing:.01em;
+    }
+    input,select{
+      width:100%;
+      background:var(--bg-input);
+      border:1px solid var(--border);
+      color:var(--text-main);
+      padding:10px 11px;
+      border-radius:8px;
+      outline:none;
+    }
+    input:focus, select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px var(--accent-glow);
+    }
+
+    .btn{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      font-weight:800;
+      cursor:pointer;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:#fff;
+      box-shadow:0 12px 24px rgba(124,58,237,.18);
+    }
+    .btn-primary:hover{
+      filter:brightness(1.06);
+      box-shadow:0 16px 32px rgba(124,58,237,.22), 0 0 20px var(--accent-glow);
+    }
+    .loader{
+      width:16px; height:16px;
+      border:2px solid #fff; border-bottom-color:transparent;
+      border-radius:50%;
+      animation:rot 1s linear infinite;
+      display:none;
+    }
+    @keyframes rot{ to{ transform:rotate(360deg);} }
+
+    /* KPI strip */
+    .metrics-grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:18px;
+      margin-bottom:25px;
+    }
+    @media (max-width:1200px){ .metrics-grid{ grid-template-columns:repeat(2,1fr);} }
+    @media (max-width:520px){ .metrics-grid{ grid-template-columns:1fr;} }
+
+    .metric-card{
+      background:var(--bg-card);
+      padding:16px 18px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      position:relative;
+      overflow:hidden;
+      cursor:default;
+    }
+    .metric-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(124,58,237,.72);
+      box-shadow:0 18px 38px rgba(0,0,0,.55), 0 0 0 1px rgba(124,58,237,.22);
+    }
+    .metric-card:before{
+      content:"";
+      position:absolute; top:0; left:12px; right:12px; height:2px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(124,58,237,0.0), rgba(124,58,237,0.85), rgba(124,58,237,0.0));
+    }
+    .metric-val{
+      font-size:1.92rem;
+      font-weight:900;
+      margin:6px 0 4px;
+      letter-spacing:-0.02em;
+    }
+    .kpi-subtitle{ font-size:.72rem; color:var(--text-muted); margin-top:3px; }
+
+    /* Optimal price card more prominent (4th) */
+    .metrics-grid .metric-card:nth-child(4){
+      border-color:rgba(124,58,237,.90);
+      box-shadow:0 0 0 rgba(0,0,0,0);
+    }
+    .metrics-grid .metric-card:nth-child(4):hover{
+      box-shadow:0 22px 44px rgba(0,0,0,.65), 0 0 26px rgba(124,58,237,.35);
+    }
+    .metrics-grid .metric-card:nth-child(4) .metric-val{
+      position:relative;
+    }
+    .metrics-grid .metric-card:nth-child(4) .metric-val:after{
+      content:"";
+      position:absolute;
+      inset:-6px -10px;
+      border-radius:999px;
+      border:1px solid rgba(124,58,237,0.0);
+      animation:optGlow 2.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes optGlow{
+      0%,100%{ border-color:rgba(124,58,237,0.0); }
+      50%{ border-color:rgba(124,58,237,0.45); }
+    }
+
+    .chart-container{ height:280px; position:relative; margin-top:10px; }
+
+    .sim-box{
+      background:var(--gradient-1);
+      border:1px solid rgba(124,58,237,.65);
+      margin-top:20px;
+    }
+    input[type="range"]{ width:100%; margin:15px 0; accent-color:var(--accent); height:4px; }
+    .sim-val-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; text-align:center; }
+    .sim-highlight{ color:var(--accent); font-weight:900; font-size:1.08rem; }
+    .divider{ border-top:1px solid rgba(48,54,61,.70); margin:10px 0 8px; }
+    .intel-explainer{ margin-top:8px; font-size:.82rem; color:var(--text-muted); line-height:1.5; }
+    .fade-in{ animation:fadeInSoft .35s ease-out; }
+    @keyframes fadeInSoft{
+      from{ opacity:0; transform:translateY(4px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    .volatilityBox{
+      border-color:var(--danger) !important;
+      display:none;
+      margin-top:20px;
+    }
+
+    .section-header{
+      font-size:.85rem;
+      font-weight:800;
+      margin-top:18px;
+      margin-bottom:10px;
+      color:var(--accent);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .summary-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      font-size:.86rem;
+    }
+    .summary-table th{
+      text-align:left;
+      border-bottom:1px solid var(--border);
+      padding:8px;
+      color:var(--text-muted);
+      font-weight:700;
+    }
+    .summary-table td{
+      border-bottom:1px solid var(--border);
+      padding:8px;
+      color:var(--text-main);
+    }
+    .summary-row-highlight{
+      background:rgba(124,58,237,0.08);
+      font-weight:700;
+    }
+  </style>
 </head>
-<body>
 
-<div class="container">
+<body>
+  <div class="container">
     <nav class="nav">
-        <div class="brand">Pricing Intelligence Suite</div>
-        <div class="text-sm">Enterprise Edition</div>
+      <div class="brand">Revenue<span>Lens</span></div>
+      <div class="text-sm">Autonomous Revenue Engine v2.0</div>
     </nav>
 
+    <!-- KPI strip -->
     <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="text-sm">Price Elasticity</div>
-            <div class="metric-val" id="disp_elasticity">-</div>
-        </div>
-        <div class="metric-card">
-            <div class="text-sm">Pricing Power</div>
-            <div class="metric-val" id="disp_power">-</div>
-        </div>
-        <div class="metric-card">
-            <div class="text-sm" id="opt_label">Max Potential</div>
-            <div class="metric-val" style="color:var(--success)" id="disp_max">-</div>
-        </div>
-        <div class="metric-card">
-            <div class="text-sm">Optimal Price</div>
-            <div class="metric-val" id="disp_opt_price">-</div>
-        </div>
+      <div class="metric-card">
+        <div class="text-sm">Price Elasticity</div>
+        <div class="kpi-subtitle">% demand change per 1% price move</div>
+        <div class="metric-val" id="dispElasticity">—</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="text-sm">Model Confidence</div>
+        <div class="kpi-subtitle">R² — fit quality of demand model</div>
+        <div class="metric-val" id="dispPower">—</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="text-sm" id="optLabel">Max Potential</div>
+        <div class="kpi-subtitle" id="kpiMaxDelta">—</div>
+        <div class="metric-val" style="color: var(--success)" id="dispMax">—</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="text-sm">Optimal Price</div>
+        <div class="kpi-subtitle" id="kpiOptDelta">—</div>
+        <div class="metric-val" id="dispOptPrice">—</div>
+      </div>
     </div>
 
     <div class="grid">
-        <div>
-            <div class="card">
-                <h3>Configuration</h3>
-                <div style="height:15px"></div>
-                
-                <form id="configForm">
-                    <div class="input-group">
-                        <label>Sales Data (CSV)</label>
-                        <input type="file" name="file" id="fileInput" accept=".csv" required>
-                    </div>
+      <!-- Left panel -->
+      <div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Configuration</h3>
+            <span class="badge" id="modeBadge" style="display:none;">Mode: —</span>
+          </div>
+          <div style="height:14px;"></div>
 
-                    <div class="input-group">
-                        <label>Target Product</label>
-                        <select name="product" id="productSelect" disabled>
-                            <option value="ALL">All Products</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Unit Cost (Optional)</label>
-                        <input type="number" name="cost" id="costInput" placeholder="0.00" step="0.01">
-                        <div class="text-sm" style="margin-top:4px">Entering cost enables Profit Optimization</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <span>Run Analysis</span>
-                        <div class="loader"></div>
-                    </button>
-                </form>
-
-                <div class="card sim-box" id="simPanel" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3>Simulator</h3>
-                        <span class="badge" style="background:var(--accent); color:white">LIVE</span>
-                    </div>
-                    
-                    <div style="margin: 15px 0;">
-                        <div style="display:flex; justify-content:space-between; font-weight:600;">
-                            <span>Price:</span>
-                            <span id="simPriceVal" style="color:var(--accent)">-</span>
-                        </div>
-                        <input type="range" id="priceSlider">
-                    </div>
-
-                    <div class="sim-val-grid">
-                        <div>
-                            <div class="text-sm">Est. Volume</div>
-                            <div id="simQty" class="sim-highlight">-</div>
-                        </div>
-                        <div>
-                            <div class="text-sm" id="simMetricLabel">Est. Revenue</div>
-                            <div id="simMetric" class="sim-highlight">-</div>
-                        </div>
-                    </div>
-                </div>
+          <form id="configForm">
+            <div class="input-group">
+              <label>Sales Data (CSV)</label>
+              <input type="file" name="file" id="fileInput" accept=".csv" required />
             </div>
 
-            <div id="volatilityBox" class="card" style="margin-top:20px; border-color:var(--danger); display:none;">
-                <div style="display:flex; gap:10px; align-items:center; color:var(--danger); font-weight:700;">
-                    <span>⚠️ High Volatility Detected</span>
-                </div>
-                <p class="text-sm" style="margin-top:10px">
-                    Elasticity is > 1.5. Small price changes will cause massive volume swings. Proceed with caution.
-                </p>
+            <div class="input-group">
+              <label>Target Product</label>
+              <select name="product" id="productSelect" disabled>
+                <option value="ALL">All Products</option>
+              </select>
             </div>
+
+            <div class="input-group">
+              <label>Unit Cost (Optional)</label>
+              <input type="number" name="cost" id="costInput" placeholder="0.00" step="0.01"/>
+              <div class="text-sm" style="margin-top:6px;">Entering cost enables Profit Optimization.</div>
+            </div>
+
+            <div class="section-header">Goal Seek (Optional)</div>
+
+            <div class="input-group">
+              <label>Target Revenue</label>
+              <input type="number" name="target_rev" id="targetRevInput" placeholder="e.g., 25000" step="1"/>
+              <div class="text-sm" style="margin-top:6px;">If set, we’ll suggest a price to hit the target (revenue-based).</div>
+            </div>
+
+            <div class="input-group">
+              <label>Deadline (days)</label>
+              <input type="number" name="deadline_days" id="deadlineInput" placeholder="e.g., 30" step="1"/>
+            </div>
+
+            <div class="input-group">
+              <label>Inventory</label>
+              <input type="number" name="inventory" id="inventoryInput" placeholder="e.g., 800" step="1"/>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <span>Run Analysis</span>
+              <div class="loader"></div>
+            </button>
+          </form>
         </div>
 
-        <div>
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>Demand Curve</h3>
-                    <div class="text-sm">95% Confidence Band</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="demandChart"></canvas>
-                </div>
-            </div>
+        <div class="card sim-box" id="simPanel" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Simulator</h3>
+            <span class="badge">LIVE</span>
+          </div>
 
-            <div class="card" style="margin-top:20px">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 id="metricChartTitle">Revenue Optimization</h3>
-                    <div class="text-sm">Projected Performance</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="metricChart"></canvas>
-                </div>
+          <div style="margin: 15px 0;">
+            <div style="display:flex; justify-content:space-between; font-weight:800;">
+              <span>Price</span>
+              <span id="simPriceVal" style="color:var(--accent);">—</span>
             </div>
+            <input type="range" id="priceSlider"/>
+          </div>
 
-            <div class="card conclusion" id="conclusionPanel" style="display:none;">
-                <h3>Executive Summary</h3>
-                <!-- Content injected dynamically -->
+          <div class="sim-val-grid">
+            <div>
+              <div class="text-sm">Pred. Demand</div>
+              <div id="simQty" class="sim-highlight">—</div>
             </div>
+            <div>
+              <div class="text-sm" id="simMetricLabel">Est. Revenue</div>
+              <div id="simMetric" class="sim-highlight">—</div>
+            </div>
+          </div>
         </div>
-    </div>
-</div>
 
-<script>
-let model = { intercept: 0, elasticity: 0, cost: 0 };
-let charts = { demand: null, metric: null };
+        <div class="card volatilityBox" id="volatilityBox">
+          <div style="display:flex; gap:10px; align-items:center; color:var(--danger); font-weight:900;">
+            <span>High Elasticity Detected</span>
+          </div>
+          <p class="text-sm" style="margin-top:10px;">
+            Elasticity magnitude is high. Small price changes may cause large demand swings—use conservative moves.
+          </p>
+        </div>
 
-document.getElementById('fileInput').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('/scan_products', { method:'POST', body:formData });
-    const data = await res.json();
-    const select = document.getElementById('productSelect');
-    select.innerHTML = '<option value="ALL">All Products</option>';
-    if(data.products && data.products.length > 0) {
-        select.disabled = false;
-        data.products.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p; opt.innerText = p; select.appendChild(opt);
-        });
-    }
-});
+        <div class="card" id="intelligencePanel" style="margin-top:20px; display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Market & Inventory Intelligence</h3>
+          </div>
 
-document.getElementById('configForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.target.querySelector('button');
-    const loader = e.target.querySelector('.loader');
-    btn.disabled = true; loader.style.display = 'block';
+          <div style="display:flex; justify-content:space-between; margin-top:10px; gap:14px;">
+            <div style="flex:1;">
+              <div class="text-sm">Seasonality</div>
+              <div id="seasonTag" class="badge">—</div>
+            </div>
 
-    try {
-        const formData = new FormData(e.target);
-        const res = await fetch('/analyze', { method:'POST', body:formData });
-        const data = await res.json();
-        if(data.error) throw new Error(data.error);
-        updateDashboard(data);
-    } catch(err) {
-        alert(err.message);
-    } finally {
-        btn.disabled = false; loader.style.display = 'none';
-    }
-});
+            <div style="flex:1;">
+              <div class="text-sm">Inventory Posture</div>
+              <div id="inventoryTag" class="badge">—</div>
+            </div>
+          </div>
 
-function updateDashboard(data) {
-    model = { intercept: data.optimization.intercept, elasticity: data.optimization.elasticity, cost: data.optimization.cost };
-    const isProfit = model.cost > 0;
-    const currency = '₹';
+          <div class="divider"></div>
 
-    animateValue('disp_elasticity', data.metrics.elasticity, '', 2);
-    animateValue('disp_power', data.metrics.pricing_power, '', 0);
-    animateValue('disp_opt_price', data.optimization.optimal_price, currency, 2);
-    animateValue('disp_max', data.optimization.max_val, currency, 0);
-    
-    document.getElementById('opt_label').innerText = isProfit ? "Max Potential Profit" : "Max Potential Revenue";
-    document.getElementById('metricChartTitle').innerText = isProfit ? "Profit Optimization" : "Revenue Optimization";
-    document.getElementById('simMetricLabel').innerText = isProfit ? "Est. Profit" : "Est. Revenue";
+          <div id="seasonExplainer" class="intel-explainer">—</div>
+          <div id="inventoryExplainer" class="intel-explainer">—</div>
 
-    const volBox = document.getElementById('volatilityBox');
-    volBox.style.display = Math.abs(data.metrics.elasticity) > 1.5 ? 'block' : 'none';
+          <div class="divider"></div>
 
-    const slider = document.getElementById('priceSlider');
-    slider.min = data.charts.prices[0];
-    slider.max = data.charts.prices[data.charts.prices.length - 1];
-    slider.step = (slider.max - slider.min) / 100;
-    slider.value = data.metrics.avg_price;
-    document.getElementById('simPanel').style.display = 'block';
-    updateSimulator(slider.value); 
+          <div class="text-sm" style="font-weight:800; margin-top:6px;">Elasticity Insight</div>
+          <div id="elasticityExplainer" class="intel-explainer">—</div>
+        </div>
+      </div>
 
-    const panel = document.getElementById('conclusionPanel');
-    panel.style.display = 'block';
-    const imp = data.impact_analysis;
-    const sens = data.sensitivity_analysis;
-    const mkt = data.market_position;
-    const scen = data.scenario_comparison;
-    const risk = data.risk_simulation;
+      <!-- Right panel -->
+      <div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Demand Curve</h3>
+            <div class="text-sm">Model Prediction</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="demandChart"></canvas>
+          </div>
+        </div>
 
-    let html = `
-        <div class="section-header">Revenue Opportunity</div>
-        <table class="summary-table">
-            <tr><td>Current Performance</td><td>${currency}${imp.current_value.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr class="summary-row-highlight"><td>Optimal Potential</td><td>${currency}${imp.optimal_value.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Upside Value</td><td style="color:var(--success)">+${currency}${imp.absolute_gain.toLocaleString(undefined,{maximumFractionDigits:0})} (+${imp.percent_gain.toFixed(1)}%)</td></tr>
-            ${isProfit ? `<tr><td>Target Margin</td><td>${imp.margin_percent.toFixed(1)}%</td></tr>` : ''}
-        </table>
+        <div class="card" style="margin-top:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="metricChartTitle">Revenue Optimization</h3>
+            <div class="text-sm">Projected Performance</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="metricChart"></canvas>
+          </div>
+        </div>
 
-        <div class="section-header">Market Sensitivity</div>
-        <div class="text-sm" style="margin-bottom:10px">${sens.demand_impact_statement}</div>
-        <table class="summary-table">
-            <tr><td>Volatility Profile</td><td>${sens.volatility_level}</td></tr>
-            <tr><td>Confidence Score</td><td>${sens.confidence_level} (${(sens.confidence_score*100).toFixed(0)}%)</td></tr>
-            <tr><td>Strategic Position</td><td>${mkt.strategic_positioning}</td></tr>
-        </table>
+        <div class="card" id="conclusionPanel" style="margin-top:20px; display:none;">
+          <h3>Executive Summary</h3>
 
-        <div class="section-header">Scenario Comparison</div>
-        <table class="summary-table">
-            <thead><tr><th>Scenario</th><th>Price</th><th>Est. Vol</th><th>${isProfit ? 'Profit' : 'Revenue'}</th></tr></thead>
+          <table class="summary-table" id="summaryTable">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Current</th>
+                <th>Optimal</th>
+              </tr>
+            </thead>
             <tbody>
-                <tr><td>Current</td><td>${currency}${scen.current.price.toFixed(2)}</td><td>${Math.round(scen.current.volume)}</td><td>${currency}${Math.round(scen.current.metric).toLocaleString()}</td></tr>
-                <tr class="summary-row-highlight"><td>Optimal</td><td>${currency}${scen.optimal.price.toFixed(2)}</td><td>${Math.round(scen.optimal.volume)}</td><td>${currency}${Math.round(scen.optimal.metric).toLocaleString()}</td></tr>
+              <tr>
+                <td>Price</td>
+                <td id="sumCurrentPrice">—</td>
+                <td id="sumOptimalPrice" class="summary-row-highlight">—</td>
+              </tr>
+              <tr>
+                <td>Predicted demand</td>
+                <td id="sumCurrentDemand">—</td>
+                <td id="sumOptimalDemand">—</td>
+              </tr>
+              <tr>
+                <td id="sumMetricLabel">Revenue</td>
+                <td id="sumCurrentMetric">—</td>
+                <td id="sumOptimalMetric" class="summary-row-highlight">—</td>
+              </tr>
+              <tr id="goalSeekRow" style="display:none;">
+                <td>Goal-seek suggestion</td>
+                <td colspan="2" id="sumGoalSeek">—</td>
+              </tr>
             </tbody>
-        </table>
+          </table>
 
-        <div class="section-header">Risk Sensitivity (Stress Test)</div>
-        <div class="text-sm">
-            Impact of 10% price deviation:
-            <ul style="margin:5px 0 0 20px; padding:0;">
-                <li>+10% Price: <span style="color:${risk.plus_10_percent_impact > 0 ? 'var(--success)' : 'var(--danger)'}">${risk.plus_10_percent_impact > 0 ? '+' : ''}${risk.plus_10_percent_impact.toFixed(1)}%</span> impact</li>
-                <li>-10% Price: <span style="color:${risk.minus_10_percent_impact > 0 ? 'var(--success)' : 'var(--danger)'}">${risk.minus_10_percent_impact > 0 ? '+' : ''}${risk.minus_10_percent_impact.toFixed(1)}%</span> impact</li>
-            </ul>
+          <div class="intel-explainer" id="summaryNote" style="margin-top:10px;">—</div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="section-header">Final Strategic Recommendation</div>
-        <div class="rec-text">${data.final_recommendation}</div>
-    `;
-
-    const contentContainer = document.createElement('div');
-    contentContainer.innerHTML = html;
-    const h3 = panel.querySelector('h3');
-    panel.innerHTML = '';
-    panel.appendChild(h3);
-    panel.appendChild(contentContainer);
-
-    renderCharts(data);
-}
-
-document.getElementById('priceSlider').addEventListener('input', (e) => updateSimulator(e.target.value));
-
-function updateSimulator(price) {
-    price = parseFloat(price);
-    const logQ = model.intercept + (model.elasticity * Math.log(price));
-    const q = Math.exp(logQ);
-    const metric = model.cost > 0 ? (price - model.cost) * q : price * q;
-
-    document.getElementById('simPriceVal').innerText = "₹" + price.toFixed(2);
-    document.getElementById('simQty').innerText = Math.round(q).toLocaleString();
-    document.getElementById('simMetric').innerText = "₹" + metric.toLocaleString(undefined, {maximumFractionDigits:0});
-
-    if(charts.demand && charts.metric) {
-        updateChartAnnotation(charts.demand, price, q);
-        updateChartAnnotation(charts.metric, price, metric);
-    }
-}
-
-function updateChartAnnotation(chart, x, y) {
-    chart.options.plugins.annotation.annotations.simLine = { type: 'line', xMin: x, xMax: x, borderColor: '#3b82f6', borderWidth: 2, borderDash: [4,4] };
-    chart.options.plugins.annotation.annotations.simPoint = { type: 'point', xValue: x, yValue: y, backgroundColor: '#3b82f6', radius: 6, borderColor: 'white', borderWidth: 2 };
-    chart.update('none');
-}
-
-function renderCharts(data) {
-    const commonOptions = {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, annotation: { annotations: {} } },
-        scales: { x: { grid: {color:'#30363d'}, title: {display:true, text:'Price'} }, y: { grid: {color:'#30363d'} } }
+  <script>
+    // -----------------------------
+    // Helpers
+    // -----------------------------
+    const fmtINR0 = (n) => {
+      if (n === null || n === undefined || Number.isNaN(n)) return "—";
+      return "₹" + Math.round(n).toLocaleString("en-IN");
+    };
+    const fmtINR2 = (n) => {
+      if (n === null || n === undefined || Number.isNaN(n)) return "—";
+      return "₹" + Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const fmtPct1 = (n) => {
+      if (n === null || n === undefined || Number.isNaN(n)) return "—";
+      const sign = n >= 0 ? "+" : "";
+      return sign + Number(n).toFixed(1) + "%";
+    };
+    const safeNum = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : null;
     };
 
-    if(charts.demand) charts.demand.destroy();
-    charts.demand = new Chart(document.getElementById('demandChart'), {
-        type: 'line',
-        data: {
-            labels: data.charts.prices.map(p => p.toFixed(2)),
-            datasets: [
-                { label: 'Actual', data: data.charts.scatter, type: 'scatter', backgroundColor: '#8b949e' },
-                { label: 'Trend', data: data.charts.demand, borderColor: '#fff', borderWidth: 2, pointRadius: 0 },
-                { label: 'CI Upper', data: data.charts.demand_upper, backgroundColor: 'rgba(59,130,246,0.1)', borderColor: 'transparent', fill: '+1', pointRadius:0 },
-                { label: 'CI Lower', data: data.charts.demand_lower, backgroundColor: 'transparent', borderColor: 'transparent', pointRadius:0 }
-            ]
-        }, options: commonOptions
-    });
+    function animateValue(id, end, formatter, duration = 650) {
+      const el = document.getElementById(id);
+      if (!el) return;
 
-    if(charts.metric) charts.metric.destroy();
-    charts.metric = new Chart(document.getElementById('metricChart'), {
-        type: 'line',
-        data: {
-            labels: data.charts.prices.map(p => p.toFixed(2)),
-            datasets: [{
-                label: model.cost > 0 ? 'Profit' : 'Revenue',
-                data: data.charts.metric_curve,
-                borderColor: '#238636', backgroundColor: 'rgba(35, 134, 54, 0.2)',
-                fill: true, pointRadius: 0
-            }]
-        }, options: commonOptions
-    });
-}
+      const finalVal = safeNum(end);
+      if (finalVal === null) {
+        el.textContent = "—";
+        return;
+      }
 
-function animateValue(id, end, prefix="", decimals=0) {
-    const el = document.getElementById(id);
-    let start = 0; const duration = 1000; const startTime = performance.now();
-    function update(currentTime) {
-        const elapsed = currentTime - startTime; const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 4);
-        const currentVal = start + (end - start) * ease;
-        el.innerText = prefix + currentVal.toLocaleString(undefined, {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
-        if (progress < 1) requestAnimationFrame(update);
+      const start = 0;
+      const startTime = performance.now();
+
+      function frame(now) {
+        const p = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const cur = start + (finalVal - start) * eased;
+
+        el.textContent = formatter(cur);
+
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
     }
-    requestAnimationFrame(update);
-}
-</script>
+
+    // -----------------------------
+    // State
+    // -----------------------------
+    let model = { intercept: 0, elasticity: 0, cost: 0 };
+    let charts = { demand: null, metric: null };
+    let chartBaseAnnotations = { currentPrice: null, optimalPrice: null };
+
+    // -----------------------------
+    // Product scan on file change
+    // -----------------------------
+    document.getElementById("fileInput").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      const res = await fetch("/scan_products", { method: "POST", body: fd });
+      const data = await res.json();
+
+      const select = document.getElementById("productSelect");
+      select.innerHTML = `<option value="ALL">All Products</option>`;
+
+      if (data.products && data.products.length > 0) {
+        select.disabled = false;
+        data.products.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p;
+          opt.innerText = p;
+          select.appendChild(opt);
+        });
+      } else {
+        select.disabled = true;
+      }
+    });
+
+    // -----------------------------
+    // Submit analysis
+    // -----------------------------
+    document.getElementById("configForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const btn = e.target.querySelector("button");
+      const loader = e.target.querySelector(".loader");
+      btn.disabled = true;
+      loader.style.display = "block";
+
+      try {
+        const fd = new FormData(e.target);
+        const res = await fetch("/analyze", { method: "POST", body: fd });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        updateDashboard(data);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+        loader.style.display = "none";
+      }
+    });
+
+    // -----------------------------
+    // Dashboard update
+    // -----------------------------
+    function updateDashboard(data) {
+      const mode = data.mode || (safeNum(data.optimization?.cost) > 0 ? "profit" : "revenue");
+      const isProfit = mode === "profit";
+
+      model.intercept = safeNum(data.optimization?.intercept) ?? 0;
+      model.elasticity = safeNum(data.metrics?.elasticity) ?? 0;
+      model.cost = safeNum(data.optimization?.cost) ?? 0;
+
+      // Titles/labels
+      document.getElementById("optLabel").innerText = isProfit ? "Max Potential Profit" : "Max Potential Revenue";
+      document.getElementById("metricChartTitle").innerText = isProfit ? "Profit Optimization" : "Revenue Optimization";
+      document.getElementById("simMetricLabel").innerText = isProfit ? "Est. Profit" : "Est. Revenue";
+      document.getElementById("sumMetricLabel").innerText = isProfit ? "Profit" : "Revenue";
+
+      const modeBadge = document.getElementById("modeBadge");
+      modeBadge.style.display = "inline-flex";
+      modeBadge.textContent = "Mode: " + (isProfit ? "Profit" : "Revenue");
+
+      // KPIs
+      animateValue("dispElasticity", safeNum(data.metrics?.elasticity), (x) => (safeNum(x) === null ? "—" : Number(x).toFixed(2)));
+      animateValue("dispPower", safeNum(data.metrics?.r2) * 100, (x) => (safeNum(x) === null ? "—" : Math.round(x).toString() + "%"));
+
+      const currentPrice = safeNum(data.metrics?.current_price);
+      const optPrice = safeNum(data.optimization?.optimal_price ?? data.optimization?.optimalprice);
+
+      const currentRevenue = safeNum(data.metrics?.current_revenue);
+      const optimalRevenue = safeNum(data.metrics?.optimal_revenue);
+      const revUp = safeNum(data.metrics?.revenue_uplift_percent);
+
+      const currentProfit = safeNum(data.metrics?.current_profit);
+      const optimalProfit = safeNum(data.metrics?.optimal_profit);
+      const profUp = safeNum(data.metrics?.profit_uplift_percent);
+
+      const maxPotential = safeNum(data.optimization?.max_potential ?? data.optimization?.maxval);
+
+      animateValue("dispOptPrice", optPrice, (x) => fmtINR2(x));
+      animateValue("dispMax", maxPotential, (x) => fmtINR0(x));
+
+      const optDeltaPct = (currentPrice && optPrice) ? ((optPrice - currentPrice) / currentPrice * 100) : null;
+      document.getElementById("kpiOptDelta").textContent =
+        (optDeltaPct === null) ? "—" : `${fmtPct1(optDeltaPct)} vs current price`;
+
+      document.getElementById("kpiMaxDelta").textContent =
+        isProfit ? `${fmtPct1(profUp)} vs current profit` : `${fmtPct1(revUp)} vs current revenue`;
+
+      // Volatility panel
+      const volBox = document.getElementById("volatilityBox");
+      volBox.style.display = (Math.abs(model.elasticity) > 1.5) ? "block" : "none";
+
+      // Intelligence (data-backed)
+      const intelPanel = document.getElementById("intelligencePanel");
+      intelPanel.style.display = "block";
+      intelPanel.classList.remove("fade-in"); void intelPanel.offsetWidth; intelPanel.classList.add("fade-in");
+
+      const season = data.meta?.seasonality || {};
+      const seasonTag = document.getElementById("seasonTag");
+      const seasonExpl = document.getElementById("seasonExplainer");
+
+      seasonTag.textContent = season.available ? `${season.label}` : "Unavailable";
+      seasonExpl.textContent = season.explainer || "—";
+
+      const inv = data.meta?.intelligence?.inventory || {};
+      const invTag = document.getElementById("inventoryTag");
+      const invExpl = document.getElementById("inventoryExplainer");
+      invTag.textContent = inv.tag || "—";
+      invExpl.textContent = inv.text || "—";
+
+      const el = data.meta?.intelligence?.elasticity || {};
+      document.getElementById("elasticityExplainer").textContent = el.text || "—";
+
+      // Charts + simulator
+      renderCharts(data);
+
+      const slider = document.getElementById("priceSlider");
+      const prices = (data.charts?.prices || []).map(p => safeNum(p)).filter(x => x !== null);
+      if (prices.length > 0) {
+        slider.min = Math.min(...prices);
+        slider.max = Math.max(...prices);
+        slider.step = (slider.max - slider.min) / 200;
+        slider.value = optPrice ?? prices[Math.floor(prices.length / 2)];
+        document.getElementById("simPanel").style.display = "block";
+        updateSimulator(parseFloat(slider.value), data);
+      }
+
+      slider.oninput = (ev) => updateSimulator(parseFloat(ev.target.value), data);
+
+      // Executive summary
+      updateSummary(data);
+
+      document.getElementById("conclusionPanel").style.display = "block";
+    }
+
+    function updateSummary(data) {
+      const mode = data.mode || (safeNum(data.optimization?.cost) > 0 ? "profit" : "revenue");
+      const isProfit = mode === "profit";
+
+      const currentPrice = safeNum(data.metrics?.current_price);
+      const optPrice = safeNum(data.optimization?.optimal_price ?? data.optimization?.optimalprice);
+
+      const currentDemand = safeNum(data.metrics?.current_demand);
+      // Estimate optimal demand from curve nearest point (or from backend if you later add it)
+      const prices = (data.charts?.prices || []).map(p => safeNum(p));
+      const demand = (data.charts?.demand || []).map(d => safeNum(d));
+      let optDemand = null;
+
+      if (optPrice !== null && prices.length === demand.length) {
+        let bestI = 0, bestD = Infinity;
+        for (let i = 0; i < prices.length; i++) {
+          if (prices[i] === null) continue;
+          const d = Math.abs(prices[i] - optPrice);
+          if (d < bestD) { bestD = d; bestI = i; }
+        }
+        optDemand = demand[bestI];
+      }
+
+      document.getElementById("sumCurrentPrice").textContent = fmtINR2(currentPrice);
+      document.getElementById("sumOptimalPrice").textContent = fmtINR2(optPrice);
+
+      document.getElementById("sumCurrentDemand").textContent = (currentDemand === null) ? "—" : Math.round(currentDemand).toLocaleString("en-IN");
+      document.getElementById("sumOptimalDemand").textContent = (optDemand === null) ? "—" : Math.round(optDemand).toLocaleString("en-IN");
+
+      const currentMetric = isProfit ? safeNum(data.metrics?.current_profit) : safeNum(data.metrics?.current_revenue);
+      const optimalMetric = isProfit ? safeNum(data.metrics?.optimal_profit) : safeNum(data.metrics?.optimal_revenue);
+
+      document.getElementById("sumCurrentMetric").textContent = fmtINR0(currentMetric);
+      document.getElementById("sumOptimalMetric").textContent = fmtINR0(optimalMetric);
+
+      const note = isProfit
+        ? `Profit mode enabled (unit cost provided).`
+        : `Revenue mode enabled (no unit cost).`;
+      document.getElementById("summaryNote").textContent = note;
+
+      // Goal seek row
+      const goal = data.goal_seek || {};
+      const row = document.getElementById("goalSeekRow");
+      if (goal.enabled) {
+        row.style.display = "";
+        const feasible = goal.feasible ? "Feasible" : "Constrained";
+        const suffix = goal.note ? ` • ${goal.note}` : "";
+        document.getElementById("sumGoalSeek").textContent =
+          `Suggested price: ${fmtINR2(goal.goal_price)} • Pred. revenue: ${fmtINR0(goal.goal_revenue)} • ${feasible}${suffix}`;
+      } else {
+        row.style.display = "none";
+      }
+    }
+
+    // -----------------------------
+    // Simulator updates (also updates sim line)
+    // -----------------------------
+    function updateSimulator(price, data) {
+      if (!price || price <= 0) return;
+
+      const seasonalFactor = safeNum(data.meta?.seasonality?.factor) ?? 1.0;
+
+      const logQ = model.intercept + model.elasticity * Math.log(price);
+      const q = Math.exp(logQ) * seasonalFactor;
+
+      const revenue = price * q;
+      const profit = (model.cost > 0) ? (price - model.cost) * q : null;
+      const metric = (model.cost > 0) ? profit : revenue;
+
+      document.getElementById("simPriceVal").innerText = fmtINR2(price);
+      document.getElementById("simQty").innerText = Number.isFinite(q) ? Math.round(q).toLocaleString("en-IN") : "—";
+      document.getElementById("simMetric").innerText = fmtINR0(metric);
+
+      if (charts.demand) updateSimAnnotation(charts.demand, price, q);
+      if (charts.metric) updateSimAnnotation(charts.metric, price, metric);
+    }
+
+    // -----------------------------
+    // Charts (linear x-axis + markers)
+    // -----------------------------
+    function renderCharts(data) {
+      const prices = (data.charts?.prices || []).map(p => safeNum(p)).filter(x => x !== null);
+      const demand = (data.charts?.demand || []).map(d => safeNum(d));
+      const metric = (data.charts?.metric || []).map(m => safeNum(m));
+
+      const currentPrice = safeNum(data.metrics?.current_price);
+      const optPrice = safeNum(data.optimization?.optimal_price ?? data.optimization?.optimalprice);
+
+      const isProfit = (data.mode === "profit");
+
+      const demandPoints = prices.map((p, i) => ({ x: p, y: safeNum(demand[i]) ?? 0 }));
+      const metricPoints = prices.map((p, i) => ({ x: p, y: safeNum(metric[i]) ?? 0 }));
+
+      const commonOptions = (yTitle) => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        parsing: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const p = ctx.parsed.x;
+                const y = ctx.parsed.y;
+                // For demand chart, y is demand. For metric chart, y is metric.
+                let q = null;
+
+                if (ctx.chart.canvas.id === "demandChart") {
+                  q = y;
+                } else {
+                  // approximate demand from matching price index
+                  const idx = ctx.dataIndex;
+                  q = safeNum(demand[idx]) ?? null;
+                }
+
+                const rev = (q === null) ? null : (p * q);
+                const prof = (q === null) ? null : ((safeNum(data.optimization?.cost) > 0) ? (p - safeNum(data.optimization?.cost)) * q : null);
+
+                const lines = [
+                  `Price: ${fmtINR2(p)}`,
+                ];
+                if (q !== null) lines.push(`Pred. demand: ${Math.round(q).toLocaleString("en-IN")}`);
+                if (rev !== null) lines.push(`Revenue: ${fmtINR0(rev)}`);
+                if (prof !== null) lines.push(`Profit: ${fmtINR0(prof)}`);
+                return lines;
+              }
+            }
+          },
+          annotation: {
+            annotations: {} // filled below
+          }
+        },
+        scales: {
+          x: {
+            type: "linear",
+            grid: { color: "#30363d" },
+            ticks: {
+              color: "#8b949e",
+              callback: (v) => "₹" + Number(v).toFixed(0)
+            },
+            title: { display: true, text: "Price", color: "#8b949e" }
+          },
+          y: {
+            grid: { color: "#30363d" },
+            ticks: { color: "#8b949e" },
+            title: { display: true, text: yTitle, color: "#8b949e" }
+          }
+        }
+      });
+
+      // Destroy if exists
+      if (charts.demand) charts.demand.destroy();
+      if (charts.metric) charts.metric.destroy();
+
+      // Demand chart gradient
+      const ctxDemand = document.getElementById("demandChart").getContext("2d");
+      const gradDemand = ctxDemand.createLinearGradient(0, 0, 0, ctxDemand.canvas.height);
+      gradDemand.addColorStop(0, "rgba(124,58,237,0.25)");
+      gradDemand.addColorStop(1, "rgba(124,58,237,0.00)");
+
+      charts.demand = new Chart(ctxDemand, {
+        type: "line",
+        data: {
+          datasets: [{
+            label: "Demand",
+            data: demandPoints,
+            borderColor: "#7C3AED",
+            backgroundColor: gradDemand,
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.35
+          }]
+        },
+        options: commonOptions("Predicted demand")
+      });
+
+      // Metric chart gradient
+      const ctxMetric = document.getElementById("metricChart").getContext("2d");
+      const gradMetric = ctxMetric.createLinearGradient(0, 0, 0, ctxMetric.canvas.height);
+      gradMetric.addColorStop(0, "rgba(35,134,54,0.25)");
+      gradMetric.addColorStop(1, "rgba(35,134,54,0.00)");
+
+      charts.metric = new Chart(ctxMetric, {
+        type: "line",
+        data: {
+          datasets: [{
+            label: isProfit ? "Profit" : "Revenue",
+            data: metricPoints,
+            borderColor: "#238636",
+            backgroundColor: gradMetric,
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.35
+          }]
+        },
+        options: commonOptions(isProfit ? "Profit" : "Revenue")
+      });
+
+      // Base annotations: current + optimal price dashed lines (both charts)
+      addBaseAnnotations(charts.demand, currentPrice, optPrice, "#ffffff", "#7C3AED");
+      addBaseAnnotations(charts.metric, currentPrice, optPrice, "#ffffff", "#7C3AED");
+    }
+
+    function addBaseAnnotations(chart, currentPrice, optPrice, currentColor, optColor) {
+      if (!chart || !chart.options?.plugins?.annotation) return;
+
+      const ann = chart.options.plugins.annotation.annotations;
+
+      // Keep existing simulator annotations if present, just overwrite base ones
+      if (currentPrice !== null) {
+        ann.currentLine = {
+          type: "line",
+          xMin: currentPrice,
+          xMax: currentPrice,
+          borderColor: currentColor,
+          borderWidth: 2,
+          borderDash: [6, 6],
+          label: { enabled: true, content: "Current", color: "#0b0e14", backgroundColor: "#ffffff", padding: 6, position: "start" }
+        };
+      }
+
+      if (optPrice !== null) {
+        ann.optLine = {
+          type: "line",
+          xMin: optPrice,
+          xMax: optPrice,
+          borderColor: optColor,
+          borderWidth: 3,
+          borderDash: [6, 6],
+          label: { enabled: true, content: "Optimal", color: "#fff", backgroundColor: "#7C3AED", padding: 6, position: "start" }
+        };
+      }
+
+      chart.update("none");
+    }
+
+    // Simulator annotations (do not wipe base annotations)
+    function updateSimAnnotation(chart, price, yVal) {
+      if (!chart || !chart.options?.plugins?.annotation) return;
+      const ann = chart.options.plugins.annotation.annotations;
+
+      ann.simLine = {
+        type: "line",
+        xMin: price,
+        xMax: price,
+        borderColor: "#7C3AED",
+        borderWidth: 1.5,
+        borderDash: [4, 4]
+      };
+
+      ann.simPoint = {
+        type: "point",
+        xValue: price,
+        yValue: (yVal && Number.isFinite(yVal)) ? yVal : 0,
+        backgroundColor: "#ffffff",
+        radius: 4,
+        borderColor: "#7C3AED",
+        borderWidth: 2
+      };
+
+      chart.update("none");
+    }
+  </script>
 </body>
 </html>
